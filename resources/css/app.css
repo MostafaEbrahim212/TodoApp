@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .custom-input {
+        @apply border-2 border-indigo-700 rounded-lg w-full focus:outline-none focus:ring-0 focus:border-indigo-700 p-2 text-lg font-semibold;
+    }
+}
