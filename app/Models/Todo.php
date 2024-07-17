@@ -21,4 +21,12 @@ class Todo extends Model
     {
         return Carbon::parse($value)->diffForHumans();
     }
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->diffForHumans();
+    }
+    public function getCompletedAtAttribute($value)
+    {
+        return Carbon::parse($value)->diffForHumans();
+    }
 }

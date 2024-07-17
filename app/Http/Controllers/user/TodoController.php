@@ -14,12 +14,17 @@ class TodoController extends Controller
         try {
             $user = Auth::user();
             if ($request->has('search')) {
-                $todos = $user->todos()->where('title', 'like', '%' . $request->search . '%')
-                    ->orWhere('description', 'like', '%' . $request->search . '%')
-                    ->latest()->get();
-                return response()->json($todos, 200);
+                $inCompletedTodos = $user->todos()
+                    ->where(function ($query) use ($request) {
+                        $query->where('description', 'like', '%' . $request->search . '%')
+                            ->orWhere('title', 'like', '%' . $request->search . '%');
+                    })
+                    ->where('completed', '=', false)
+                    ->latest()
+                    ->get();
+                return response()->json($inCompletedTodos, 200);
             } else {
-                $todos = $user->todos()->latest()->get();
+                $todos = $user->todos()->where('completed', '=', false)->latest()->get();
                 return response()->json($todos, 200);
             }
         } catch (\Exception $e) {
@@ -96,4 +101,47 @@ class TodoController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+    public function complete($id)
+    {
+        try {
+            $user = Auth::user();
+            $todo = $user->todos()->find($id);
+            $todo->update([
+                'completed' => true,
+                'completed_at' => now()
+            ]);
+            return response()->json(['message' => 'Todo marked as completed'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function incomplete($id)
+    {
+        try {
+            $user = Auth::user();
+            $todo = $user->todos()->find($id);
+            $todo->update([
+                'completed' => false,
+                'completed_at' => null
+            ]);
+            return response()->json(['message' => 'Todo marked as incompleted'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function completed()
+    {
+        try {
+            $user = Auth::user();
+            $completedTodos = $user->todos()->where('completed', true)->latest()->get();
+            return response()->json($completedTodos, 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+
 }
