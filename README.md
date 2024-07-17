@@ -13,7 +13,7 @@ Welcome to TodoApp! This is a simple application built with Laravel framework fo
 
 ## Installation
 
-1. Clone the repository: `git clone https://github.com/your-username/TodoApp.git`
+1. Clone the repository: `git clone https://github.com/MostafaEbrahim212/TodoApp.git`
 2. Navigate to the project directory: `cd TodoApp`
 3. Install dependencies: `composer install`
 4. Create a copy of the `.env.example` file and rename it to `.env`
