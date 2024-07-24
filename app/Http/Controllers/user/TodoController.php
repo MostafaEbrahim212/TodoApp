@@ -22,10 +22,19 @@ class TodoController extends Controller
                     ->where('completed', '=', false)
                     ->latest()
                     ->get();
-                return response()->json($inCompletedTodos, 200);
+                $completedTodos = $user->todos()
+                    ->where(function ($query) use ($request) {
+                        $query->where('description', 'like', '%' . $request->search . '%')
+                            ->orWhere('title', 'like', '%' . $request->search . '%');
+                    })
+                    ->where('completed', '=', true)
+                    ->latest()
+                    ->get();
+                return response()->json(['inCompletedTodos' => $inCompletedTodos, 'completedTodos' => $completedTodos], 200);
             } else {
-                $todos = $user->todos()->where('completed', '=', false)->latest()->get();
-                return response()->json($todos, 200);
+                $inCompletedTodos = $user->todos()->where('completed', '=', false)->latest()->get();
+                $completedTodos = $user->todos()->where('completed', '=', true)->latest()->get();
+                return response()->json(['inCompletedTodos' => $inCompletedTodos, 'completedTodos' => $completedTodos], 200);
             }
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
@@ -51,13 +60,10 @@ class TodoController extends Controller
                 'title' => 'required',
                 'description' => 'required',
             ]);
-
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()->first()], 400);
             }
-
             $todo = $user->todos()->create($request->all());
-
             if (!$todo) {
                 return response()->json(['message' => 'Error while creating todo', 'statusCode' => 400], 400);
             }
@@ -131,17 +137,4 @@ class TodoController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
-
-    public function completed()
-    {
-        try {
-            $user = Auth::user();
-            $completedTodos = $user->todos()->where('completed', true)->latest()->get();
-            return response()->json($completedTodos, 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
-    }
-
-
 }

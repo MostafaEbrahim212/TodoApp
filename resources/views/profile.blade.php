@@ -101,51 +101,41 @@
                     $('#profile-name').text(response.name);
                     $('#profile-bio').text(response.bio);
                     $('#profile-job').text(response.job);
+                    $('#country').val(response.country);
                     $('#avatar-img').css('background-image', 'url(' + response.avatar + ')');
                     $('#cover-img').css('background-image', 'url(' + response.cover + ')');
                 }, function(xhr) {
                     console.log(xhr);
                 });
             }
-            // change avatar
-            $('#avatar').change(function() {
-                $('#loading').show();
-                var formData = new FormData();
-                formData.append('avatar', $(this)[0].files[0]);
-                url = '{{ route('profile.avatar') }}';
 
-                ajaxPost(url, formData, function(response) {
-                    $('#loading').hide();
-                    initialize();
-                    displayMessage($('#success'), 'Avatar uploaded successfully');
-                }, function(xhr) {
-                    let error = xhr.responseJSON ? xhr.responseJSON.message : "An error occurred";
-                    console.error('Error uploading avatar:', error);
-                });
-            });
-            // change cover
-            $('#cover').change(function() {
-                $('#loading').show();
-                var formData = new FormData();
-                formData.append('cover', $(this)[0].files[0]);
-                url = '{{ route('profile.cover') }}';
-                ajaxPost(url, formData,
-                    function(response) {
+            const routes = {
+                avatar: "{{ route('profile.avatar') }}",
+                cover: "{{ route('profile.cover') }}"
+            };
+
+            function handleFileUpload(inputId, routeKey, successMessage) {
+                $('#' + inputId).change(function() {
+                    $('#loading').show();
+                    var formData = new FormData();
+                    formData.append(inputId, $(this)[0].files[0]);
+                    let url = routes[routeKey];
+
+                    ajaxPost(url, formData, function(response) {
                         $('#loading').hide();
                         initialize();
-                        displayMessage($('#success'), 'Cover uploaded successfully');
-                    },
-                    function(xhr) {
-                        let error = xhr.responseJSON ? xhr.responseJSON.message : "An error occurred";
-                        console.error('Error uploading cover:', error);
-                    }
-                );
-            });
+                        displayMessage($('#success'), successMessage);
+                    }, function(xhr) {
+                        let error = xhr.responseJSON ? xhr.responseJSON.message :
+                            "An error occurred";
+                        console.error(`Error uploading ${inputId}:`, error);
+                    });
+                });
+            }
 
+            handleFileUpload('avatar', 'avatar', 'Avatar uploaded successfully');
+            handleFileUpload('cover', 'cover', 'Cover uploaded successfully');
 
-
-
-            // get countries From App.js
             for (let i = 0; i < countries.length; i++) {
                 $('#country').append(`<option value="${countries[i]}">${countries[i]}</option>`);
             }
@@ -170,6 +160,7 @@
                     }
                 );
             });
+
         });
     </script>
 @endsection
