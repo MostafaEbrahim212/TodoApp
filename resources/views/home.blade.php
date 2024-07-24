@@ -45,10 +45,10 @@
             <div id="loading" class="text-6xl text-center text-white">
                 <i class="fa-solid fa-spinner animate-spin"></i>
             </div>
-            <div id="todos" class="grid grid-cols-12 gap-2">
+            <div id="todos" class="grid grid-cols-12 gap-2 bg-indigo-700 p-2 rounded-lg">
                 {{-- todo --}}
             </div>
-            <div id="complteded-todos" class="grid grid-cols-12 gap-2">
+            <div id="complteded-todos" class="grid grid-cols-12 gap-2  bg-indigo-700 p-2 rounded-lg">
 
             </div>
 

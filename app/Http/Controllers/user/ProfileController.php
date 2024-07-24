@@ -16,17 +16,31 @@ class ProfileController extends Controller
     public function profile()
     {
         $user = Auth::user()->load('profile');
-        $userData = [
-            'name' => $user->name,
-            'email' => $user->email,
-            'phone' => $user->profile->phone,
-            'job' => $user->profile->job,
-            'bio' => $user->profile->bio,
-            'city' => $user->profile->city,
-            'country' => $user->profile->country,
-            'avatar' => 'storage/' . $user->profile->avatar,
-            'cover' => 'storage/' . $user->profile->cover,
-        ];
+        if ($user->profile) {
+            $userData = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->profile->phone,
+                'job' => $user->profile->job,
+                'bio' => $user->profile->bio,
+                'city' => $user->profile->city,
+                'country' => $user->profile->country,
+                'avatar' => 'storage/' . $user->profile->avatar,
+                'cover' => 'storage/' . $user->profile->cover,
+            ];
+        } else {
+            $userData = [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => '',
+                'job' => '',
+                'bio' => '',
+                'city' => '',
+                'country' => '',
+                'avatar' => 'storage/avatars/default.png',
+                'cover' => 'storage/covers/default.jpg',
+            ];
+        }
         if (request()->ajax()) {
             return response()->json($userData, 200);
         }

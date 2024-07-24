@@ -149,10 +149,6 @@
             for (let i = 0; i < countries.length; i++) {
                 $('#country').append(`<option value="${countries[i]}">${countries[i]}</option>`);
             }
-            if ('{{ auth()->user()->profile->country }}') {
-                $('#country').val('{{ auth()->user()->profile->country }}');
-            }
-
 
             $('#updateProfileForm').submit(function(e) {
                 e.preventDefault();
