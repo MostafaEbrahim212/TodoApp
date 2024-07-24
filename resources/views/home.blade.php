@@ -63,16 +63,22 @@
         $(document).ready(function() {
             loadTodos();
 
+            function scrollTop() {
+                $('html, body').animate({
+                    scrollTop: 0
+                }, 500);
+            }
+
             $('#form-todo').submit(function(e) {
                 e.preventDefault();
                 let formData = new FormData(this);
                 let url = "{{ route('todos.create') }}";
                 ajaxPost(url, formData, function(response) {
                     loadTodos();
-                    loadCompletedTodos();
+                    displayMessage($('#success'), response.message);
                     $('#title').val('');
                     $('#description').val('');
-                    displayMessage($('#success'), response.message);
+                    scrollTop();
                 }, function(xhr) {
                     let error = xhr.responseJSON ? xhr.responseJSON.message : "An error occurred";
                     console.log(error);
@@ -87,7 +93,9 @@
                 const btnHoverClass = isCompleted ? 'hover:bg-red-700' : 'hover:bg-green-700';
                 const btnId = isCompleted ? 'btn-inCompleted' : 'btn-completed';
                 const date = isCompleted ? todo.completed_at : todo.created_at;
-                const buttons = isCompleted ? '' : `
+                const buttons = isCompleted ?
+                    ` <a id="btn-delete" class="delete-todo block text-center p-2 grow bg-red-500 text-white rounded-lg hover:bg-red-400 hover:cursor-pointer" data-id="${todo.id}">Delete</a>` :
+                    `
                     <a id="btn-edit" class="edit-todo block text-center p-2 grow bg-green-500 text-white rounded-lg hover:bg-green-400 hover:cursor-pointer" data-id="${todo.id}">Edit</a>
                     <a id="btn-delete" class="delete-todo block text-center p-2 grow bg-red-500 text-white rounded-lg hover:bg-red-400 hover:cursor-pointer" data-id="${todo.id}">Delete</a>
                 `;
@@ -141,14 +149,12 @@
             $('#search').on('input', function() {
                 var searchTerm = $(this).val();
                 loadTodos(searchTerm);
-                loadCompletedTodos();
             });
 
             $('#search').keyup(function(e) {
                 searchTimeout = setTimeout(function() {
                     let searchTerm = $(this).val();
                     loadTodos(searchTerm);
-                    loadCompletedTodos();
                 }, 2000);
             });
 
@@ -176,10 +182,7 @@
                     $('#submit-btn').text('Update Todo');
                     $('#btn-add').addClass('hidden');
                     $('#btn-update').removeClass('hidden');
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
+
                 } else {
                     $('#title').val('');
                     $('#description').val('');
@@ -196,6 +199,7 @@
                 try {
                     let response = await getTodo(todoId);
                     toggleForm(response);
+                    scrollTop();
                 } catch (error) {
                     console.error(error);
                 }
@@ -209,8 +213,8 @@
                 ajaxPut(url, formData, function(response) {
                     toggleForm();
                     loadTodos();
-                    loadCompletedTodos();
                     displayMessage($('#success'), response.message);
+                    scrollTop();
                 }, function(xhr) {
                     let error = xhr.responseJSON ? xhr.responseJSON.message : "An error occurred";
                     console.log(error);
@@ -234,9 +238,7 @@
                     if (result.isConfirmed) {
                         let url = "{{ route('todos.destroy', '') }}" + '/' + todoId;
                         ajaxDelete(url, function(response) {
-                            console.log(response.message);
                             loadTodos();
-                            loadCompletedTodos();
                             displayMessage($('#success'), response.message);
                         }, function(xhr) {
                             let error = xhr.responseJSON ? xhr.responseJSON.message :
